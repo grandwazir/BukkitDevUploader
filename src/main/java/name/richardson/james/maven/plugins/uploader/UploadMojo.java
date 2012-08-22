@@ -58,7 +58,7 @@ public class UploadMojo extends AbstractMojo {
    * 
    * @parameter expression="${bukkitdevuploader.changeLog}"
    *            default-value=
-   *            "Uploaded using CurseForgerUploader. CHANGELOG pending."
+   *            "Uploaded using BukkitDevUploader. CHANGELOG pending."
    */
   private String changeLog;
 
@@ -118,7 +118,6 @@ public class UploadMojo extends AbstractMojo {
    */
   private String slug;
 
-  @Override
   public void execute() throws MojoExecutionException {
     this.getLog().info("Uploading project to BukkitDev");
     final String gameVersion = this.getGameVersion();

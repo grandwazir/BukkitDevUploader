@@ -84,8 +84,8 @@ Once you have configured your API key you need to add the plugin to the build ph
       <plugins>
         <plugin>
           <groupId>name.richardson.james.maven</groupId>
-          <artifactId>curse-forge-uploader</artifactId>
-          <version>0.0.1-SNAPSHOT</version>
+          <artifactId>bukkit-dev-uploader</artifactId>
+          <version>1.0.0</version>
           <executions>
             <execution>
               <goals>

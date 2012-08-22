@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2012 James Richardson.
+ * 
+ * UploadMojo.java is part of CurseForgeUploader.
+ * 
+ * CurseForgeUploader is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * 
+ * CurseForgeUploader is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with CurseForgeUploader.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package name.richardson.james.maven.plugins.uploader;
 
 /*
@@ -17,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,8 +39,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -54,6 +62,15 @@ public class UploadMojo extends AbstractMojo {
   /**
    * The name of the game that we are uploading
    * 
+   * @parameter expression="${curseforgeuploader.changeLog}"
+   *            default-value=
+   *            "Uploaded using CurseForgerUploader. CHANGELOG pending."
+   */
+  private String changeLog;
+
+  /**
+   * The name of the game that we are uploading
+   * 
    * @parameter expression="${curseforgeuploader.gameName}"
    *            default-value="minecraft"
    */
@@ -68,39 +85,6 @@ public class UploadMojo extends AbstractMojo {
   private String key;
 
   /**
-   * Project being built
-   * 
-   * @parameter expression="${project}
-   * @required
-   */
-  private MavenProject project;
-
-  /**
-   * The name of the game that we are uploading
-   * 
-   * @parameter expression="${curseforgeuploader.projectSlug}"
-   *            default-value="${project.name}"
-   */
-  private String slug;
-
-  /**
-   * The name of the game that we are uploading
-   * 
-   * @parameter expression="${curseforgeuploader.markupType}"
-   *            default-value="markdown"
-   */
-  private String markupType;
-
-  /**
-   * The name of the game that we are uploading
-   * 
-   * @parameter expression="${curseforgeuploader.changeLog}"
-   *            default-value=
-   *            "Uploaded using CurseForgerUploader. CHANGELOG pending."
-   */
-  private String changeLog;
-
-  /**
    * The name of the game that we are uploading
    * 
    * @parameter expression="${curseforgeuploader.knownCaveats}"
@@ -111,21 +95,36 @@ public class UploadMojo extends AbstractMojo {
   /**
    * The name of the game that we are uploading
    * 
+   * @parameter expression="${curseforgeuploader.markupType}"
+   *            default-value="markdown"
+   */
+  private String markupType;
+
+  /**
+   * Project being built
+   * 
+   * @parameter expression="${project}
+   * @required
+   */
+  private MavenProject project;
+
+  /**
+   * The name of the game that we are uploading
+   * 
    * @parameter expression="${curseforgeuploader.projectType}"
    *            default-value="server-mods"
    */
   private String projectType;
 
-  private String getGameVersion() throws MojoExecutionException {
-    final Map<String, String> remoteVersions = this.getRemoteBukkitVersions();
-    final String localVersion = this.getLocalBukkitVersion();
-    this.getLog().debug(remoteVersions.toString());
-    final String gameVersion = remoteVersions.get("CB " + localVersion);
-    if (gameVersion == null) throw new MojoExecutionException("Unable to determine game version!");
-    this.getLog().debug("Internal game version id: " + gameVersion);
-    return gameVersion;
-  }
+  /**
+   * The name of the game that we are uploading
+   * 
+   * @parameter expression="${curseforgeuploader.projectSlug}"
+   *            default-value="${project.name}"
+   */
+  private String slug;
 
+  @Override
   public void execute() throws MojoExecutionException {
     this.getLog().info("Uploading project to BukkitDev");
     final String gameVersion = this.getGameVersion();
@@ -146,7 +145,7 @@ public class UploadMojo extends AbstractMojo {
       entity.addPart("change_markup_type", new StringBody(this.markupType));
       entity.addPart("caveats_markup_type", new StringBody(this.markupType));
       entity.addPart("file", new FileBody(this.getArtifactFile(this.project.getArtifact())));
-    } catch (UnsupportedEncodingException e) {
+    } catch (final UnsupportedEncodingException e) {
       throw new MojoExecutionException(e.getMessage());
     }
 
@@ -164,8 +163,8 @@ public class UploadMojo extends AbstractMojo {
 
     // send the request and handle any replies
     try {
-      HttpClient client = new DefaultHttpClient();
-      HttpResponse response = client.execute(request);
+      final HttpClient client = new DefaultHttpClient();
+      final HttpResponse response = client.execute(request);
       switch (response.getStatusLine().getStatusCode()) {
       case 201:
         this.getLog().info("File uploaded successfully.");
@@ -185,12 +184,24 @@ public class UploadMojo extends AbstractMojo {
         this.getLog().warn("Unexpected response code: " + response.getStatusLine().getStatusCode());
         break;
       }
-    } catch (ClientProtocolException exception) {
+    } catch (final ClientProtocolException exception) {
       throw new MojoExecutionException(exception.getMessage());
-    } catch (IOException exception) {
+    } catch (final IOException exception) {
       throw new MojoExecutionException(exception.getMessage());
     }
 
+  }
+
+  private File getArtifactFile(final Artifact artifact) throws MojoExecutionException {
+    if (artifact == null) {
+      throw new MojoExecutionException("No artifact to upload!");
+    }
+    final File file = artifact.getFile();
+    if ((file != null) && file.isFile() && file.exists()) {
+      return file;
+    } else {
+      throw new MojoExecutionException("No artifact to upload!");
+    }
   }
 
   private String getFileType() {
@@ -199,6 +210,18 @@ public class UploadMojo extends AbstractMojo {
     } else {
       return "b";
     }
+  }
+
+  private String getGameVersion() throws MojoExecutionException {
+    final Map<String, String> remoteVersions = this.getRemoteBukkitVersions();
+    final String localVersion = this.getLocalBukkitVersion();
+    this.getLog().debug(remoteVersions.toString());
+    final String gameVersion = remoteVersions.get("CB " + localVersion);
+    if (gameVersion == null) {
+      throw new MojoExecutionException("Unable to determine game version!");
+    }
+    this.getLog().debug("Internal game version id: " + gameVersion);
+    return gameVersion;
   }
 
   private String getLocalBukkitVersion() throws MojoExecutionException {
@@ -220,13 +243,13 @@ public class UploadMojo extends AbstractMojo {
 
   @SuppressWarnings("unchecked")
   private Map<String, String> getRemoteBukkitVersions() throws MojoExecutionException {
-    HttpGet request = new HttpGet("http://" + this.game + ".curseforge.com/game-versions.json");
+    final HttpGet request = new HttpGet("http://" + this.game + ".curseforge.com/game-versions.json");
     JSONObject json;
     final Map<String, String> map = new HashMap<String, String>();
 
     try {
-      HttpClient client = new DefaultHttpClient();
-      HttpResponse response = client.execute(request);
+      final HttpClient client = new DefaultHttpClient();
+      final HttpResponse response = client.execute(request);
       json = new JSONObject(EntityUtils.toString(response.getEntity()));
       final Iterator<String> itr = json.keys();
       while (itr.hasNext()) {
@@ -234,29 +257,19 @@ public class UploadMojo extends AbstractMojo {
         final String version = json.getJSONObject(key).getString("name");
         map.put(version, key);
       }
-    } catch (IllegalStateException e) {
+    } catch (final IllegalStateException e) {
       throw new MojoExecutionException(e.getMessage());
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new MojoExecutionException(e.getMessage());
-    } catch (ParseException e) {
+    } catch (final ParseException e) {
       throw new MojoExecutionException(e.getMessage());
-    } catch (JSONException e) {
+    } catch (final JSONException e) {
       throw new MojoExecutionException(e.getMessage());
     }
 
     this.getLog().debug(map.size() + " remote versions found.");
     return map;
 
-  }
-
-  private File getArtifactFile(Artifact artifact) throws MojoExecutionException {
-    if (artifact == null) throw new MojoExecutionException("No artifact to upload!");
-    File file = artifact.getFile();
-    if (file != null && file.isFile() && file.exists()) {
-      return file;
-    } else {
-      throw new MojoExecutionException("No artifact to upload!");
-    }
   }
 
 }

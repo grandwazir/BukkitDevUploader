@@ -19,7 +19,9 @@ BukkitDevUploader is distributed in the hope that it will be useful, but WITHOUT
 
 ## Documentation
 
-Many of the features specific to BukkitDevUploader are documented [on the wiki](https://github.com/grandwazir/BukkitDevUploader/wiki). Additionally you may find the [JavaDocs](http://grandwazir.github.com/BanHammer/BukkitDevUploader/index.html) and a [Maven website](http://grandwazir.github.com/BukkitDevUploader/) useful to you as well.
+Many of the features specific to BukkitDevUploader are documented [on the wiki](https://github.com/grandwazir/BukkitDevUploader/wiki). 
+
+You may also find the [JavaDocs](http://grandwazir.github.com/BanHammer/BukkitDevUploader/index.html) and a [Maven website](http://grandwazir.github.com/BukkitDevUploader/) useful to you as well.
 
 ## Configuration
 

@@ -48,8 +48,8 @@ By doing this you keep your API key safe and out of potentially public repositor
       <profile>
         <id>bukkitdevuploader</id>
         <properties>
-          <bukkitdevuploader.apiKey>SECRET</curseforgeuploader.apiKey>
-          <bukkitdevuploader.markupType>markdown</curseforgeuploader.markupType>
+          <bukkitdevuploader.apiKey>SECRET</bukkitdevuploader.apiKey>
+          <bukkitdevuploader.markupType>markdown</bukkitdevuploader.markupType>
         </properties>
       </profile>
     </profiles>
@@ -64,7 +64,7 @@ You can also configure values for individual plugins by adding them to your prop
 
     <properties>
       <bukkitdevuploader.slug>custom-slug</bukkitdevuploader.slug>
-      <bukkitdevuploader.markupType>plain</bukkitdevuploader.slug>
+      <bukkitdevuploader.markupType>plain</bukkitdevuploader.markupType>
     </properties>
 
 ## Installation
